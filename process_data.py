@@ -8,20 +8,25 @@ for file in data_path.glob("*.csv"):
     df = pd.read_csv(file)
     dfs.append(df)
 
+# Combine all CSV files
 data = pd.concat(dfs, ignore_index=True)
 
+# Normalize product name
 data["product"] = data["product"].str.strip().str.lower()
+
+# Filter only Pink Morsel
 data = data[data["product"] == "pink morsel"]
 
-data["Sales"] = data["quantity"] * data["price"]
+# 🔥 Clean price column if it has $ signs and convert to float
+data["price"] = data["price"].replace({'\$': ''}, regex=True).astype(float)
 
-final_data = data[["Sales", "date", "region"]]
+# Create sales column
+data["sales"] = data["quantity"] * data["price"]
 
-final_data = final_data.rename(columns={
-    "date": "Date",
-    "region": "Region"
-})
+# Sum sales by date and region
+final_data = data.groupby(["date", "region"], as_index=False)["sales"].sum()
 
+# Save output
 final_data.to_csv("processed_sales.csv", index=False)
 
-print("Processed File created Successfully!")
+print("Processed file created successfully!")
