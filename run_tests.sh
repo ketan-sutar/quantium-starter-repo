@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -e
+
+source venv/Scripts/activate
+
+pytest -v
+
